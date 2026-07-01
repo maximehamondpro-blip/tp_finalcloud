@@ -1,22 +1,69 @@
 name: "Terraform & Ansible CI"
-on: [push, pull_request]
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
 jobs:
-  validate:
+  terraform_and_ansible:
+    name: "Validate Infrastructure & Ansible"
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
-      - uses: hashicorp/setup-terraform@v2
-      - run: terraform fmt -check || true
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: "1.6.0"
+
+      - name: Terraform Format
+        run: terraform fmt -check
         working-directory: ./terraform
-      - run: terraform init
+
+      - name: Terraform Init
+        run: terraform init
         working-directory: ./terraform
-      - run: terraform validate
+
+      - name: Terraform Validate
+        run: terraform validate
         working-directory: ./terraform
-      - uses: bridgecrewio/checkov-action@master
+
+      - name: Terraform Plan
+        run: terraform plan -no-color
+        working-directory: ./terraform
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform apply -auto-approve -no-color
+        working-directory: ./terraform
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Checkov Security Scan
+        uses: bridgecrewio/checkov-action@master
         with:
           directory: ./terraform
           framework: terraform
           soft_fail: true
-      - uses: ansible/ansible-lint@main
+
+      - name: Setup Infracost
+        uses: infracost/actions/setup@v2
         with:
-          args: "./ansible/update_lambda.yml"
+          api-key: ${{ secrets.INFRACOST_API_KEY }}
+          
+      - name: Infracost Breakdown
+        run: infracost breakdown --path ./terraform
+        continue-on-error: true
+
+      - name: Run Ansible Lint
+        uses: ansible/ansible-lint@main
+        with:
+          targets: "./ansible/update_lambda.yml"
