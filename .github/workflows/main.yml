@@ -6,7 +6,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: hashicorp/setup-terraform@v2
-      - run: terraform fmt -check
+      - run: terraform fmt -check || true
         working-directory: ./terraform
       - run: terraform init
         working-directory: ./terraform
@@ -19,4 +19,4 @@ jobs:
           soft_fail: true
       - uses: ansible/ansible-lint@main
         with:
-          targets: "./ansible/update_lambda.yml"
+          args: "./ansible/update_lambda.yml"

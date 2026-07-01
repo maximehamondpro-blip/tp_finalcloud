@@ -2,7 +2,7 @@
 - name: Mettre à jour le code de la fonction Lambda
   hosts: localhost
   connection: local
-  gather_facts: no
+  gather_facts: false
   vars:
     lambda_function_name: "image_processor_pdf_converter"
     src_dir: "../src"
@@ -13,6 +13,7 @@
         path: "{{ src_dir }}/*"
         dest: "{{ zip_dest }}"
         format: zip
+        mode: "0644"
     - name: Mettre à jour la fonction Lambda sur AWS
       amazon.aws.lambda:
         name: "{{ lambda_function_name }}"
