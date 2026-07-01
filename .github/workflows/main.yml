@@ -20,6 +20,15 @@ jobs:
         with:
           terraform_version: "latest"
 
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-3
+          role-to-assume: arn:aws:iam::738563260931:role/role_etudiants
+          role-duration-seconds: 1200
+
       - name: Terraform Format
         run: terraform fmt -check
         working-directory: ./terraform
@@ -39,17 +48,11 @@ jobs:
       - name: Terraform Plan
         run: terraform plan -no-color
         working-directory: ./terraform
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: terraform apply -auto-approve -no-color
         working-directory: ./terraform
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       - name: Checkov Security Scan
         uses: bridgecrewio/checkov-action@master

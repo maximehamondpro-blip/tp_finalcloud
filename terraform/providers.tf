@@ -1,4 +1,9 @@
 terraform {
+  backend "s3" {
+    bucket = "ynov-iac-2025-tfstate-mh"
+    key    = "terraform.tfstate"
+    region = "eu-west-3"
+  }
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -9,10 +14,6 @@ terraform {
 
 provider "aws" {
   region = var.aws_region
-
-  assume_role {
-    role_arn = "arn:aws:iam::738563260931:role/role_etudiants"
-  }
 
   default_tags {
     tags = {
