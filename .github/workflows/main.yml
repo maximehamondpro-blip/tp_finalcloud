@@ -32,6 +32,10 @@ jobs:
         run: terraform validate
         working-directory: ./terraform
 
+      - name: Build Lambda Zip
+        run: zip -r lambda_function.zip .
+        working-directory: ./src
+
       - name: Terraform Plan
         run: terraform plan -no-color
         working-directory: ./terraform
