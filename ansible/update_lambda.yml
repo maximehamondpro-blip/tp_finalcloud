@@ -1,0 +1,20 @@
+---
+- name: Mettre à jour le code de la fonction Lambda
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    lambda_function_name: "image_processor_pdf_converter"
+    src_dir: "../src"
+    zip_dest: "../src/lambda_function.zip"
+  tasks:
+    - name: Zipper le code source de la Lambda
+      community.general.archive:
+        path: "{{ src_dir }}/*"
+        dest: "{{ zip_dest }}"
+        format: zip
+    - name: Mettre à jour la fonction Lambda sur AWS
+      amazon.aws.lambda:
+        name: "{{ lambda_function_name }}"
+        zip_file: "{{ zip_dest }}"
+        state: present
