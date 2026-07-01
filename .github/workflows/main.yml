@@ -28,6 +28,7 @@ jobs:
           aws-region: eu-west-3
           role-to-assume: arn:aws:iam::738563260931:role/role_etudiants
           role-duration-seconds: 1200
+          role-skip-session-tagging: true
 
       - name: Terraform Format
         run: terraform fmt -check
