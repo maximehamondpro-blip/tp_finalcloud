@@ -14,7 +14,7 @@
         dest: "{{ zip_dest }}"
         format: zip
         mode: "0644"
-    - name: Mettre à jour la fonction Lambda sur AWS
+    - name: Mettre à jour la fonction Lambda sur AWS # noqa: args[module]
       amazon.aws.lambda:
         name: "{{ lambda_function_name }}"
         zip_file: "{{ zip_dest }}"
