@@ -1,0 +1,15 @@
+.terraform/
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl
+src/lambda_function.zip
+src/PIL/
+src/Pillow*
+src/pillow*
+src/pikepdf*
+src/lxml*
+src/img2pdf*
+src/packaging*
+__pycache__/
+*.pyc
+test_image.*
